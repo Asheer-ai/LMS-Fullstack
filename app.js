@@ -1,43 +1,49 @@
-import express from 'express';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import {config} from 'dotenv';
-import morgan from 'morgan';
 config();
-import userRoutes from './routes/user.routes.js'
+import express from 'express';
+import { config } from 'dotenv';
+import cors from 'cors';
+import morgan from 'morgan';
 import errorMiddleware from './middlewares/error.middleware.js';
-import courseRoutes from './routes/course.routes.js';
-import paymentRoutes from "./routes/payment.routes.js"
 
-const app=express();
+const app = express();
 
+// Middlewares
+// Built-In
 app.use(express.json());
-
-app.use(express.urlencoded({extended:true}))
-
-app.use(morgan('dev'));
-
-app.use(cors({
+app.use(express.urlencoded({ extended: true }));
+// Third-Party
+app.use(
+  cors({
     origin: [process.env.FRONTEND_URL],
-    credentials:true
-}));
-
+    credentials: true,
+  })
+);
+app.use(morgan('dev'));
 app.use(cookieParser());
 
-app.use('/ping',(req,res)=>{
-    res.send('Pong')
-})
+// Server Status Check Route
+app.get('/ping', (_req, res) => {
+  res.send('Pong');
+});
+
+// Import all routes
+import userRoutes from './routes/user.routes.js';
+import courseRoutes from './routes/course.routes.js';
+import paymentRoutes from './routes/payment.routes.js';
+import miscRoutes from './routes/miscellaneous.routes.js';
 
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/courses', courseRoutes);
 app.use('/api/v1/payments', paymentRoutes);
-
+app.use('/api/v1', miscRoutes);
 
 // Default catch all route - 404
 app.all('*', (_req, res) => {
-    res.status(404).send('OOPS!!! 404 Page Not Found');
+  res.status(404).send('OOPS!!! 404 Page Not Found');
 });
 
+// Custom error handling middleware
 app.use(errorMiddleware);
 
 export default app;

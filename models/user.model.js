@@ -44,7 +44,7 @@ const userSchema = new Schema(
         role: {
             type: String,
             enum: ['USER', 'ADMIN'],
-            default: 'ADMIN',
+            default: 'USER',
         },
         forgotPasswordToken: String,
         forgotPasswordExpiry: Date,
